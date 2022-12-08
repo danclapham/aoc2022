@@ -3,7 +3,7 @@ from treelib import Tree
 
 start = time.perf_counter()
 data_folder = os.path.dirname(__file__) + '/'
-file_name = '7_1.txt'
+file_name = '7.txt'
 
 root_dir = '/'
 tree = Tree()
@@ -52,7 +52,7 @@ def get_dir_sizes(max_size):
         print(branch)
         if branch.data != None and branch.data.get('type') == 'dir':
             size = get_branch_size(branch)
-            if size < max_size:
+            if size <= max_size:
                 print(size)
                 total_size += size
 
