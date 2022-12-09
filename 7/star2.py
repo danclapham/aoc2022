@@ -60,28 +60,22 @@ def add_child_sizes_to_parents(dirs):
 def get_smallest_dir_to_remove(needed_space):
     sorted_dirs = sorted(dirs.items(), key=lambda item: item[1])
 
-    for dir, size in sorted_dirs:
-        print(f'needed: {needed_space}, dir: {dir}, size: {size}')
+    for _, size in sorted_dirs:
         if size >= needed_space:
-            return get_dir(dir)
-    return '/'
+            return size
+    return 0
 
 if __name__ == "__main__":
     with open(data_folder + file_name) as f:
         lines = f.readlines()
-
         for line in lines:
             parse_line(line)
 
         dirs = add_child_sizes_to_parents(dirs)
 
-        print(dirs[root_dir])
-
-        total_space = 70_000_000
-        needed_space = 30_000_000
-        space_to_free = dirs[root_dir] - total_space + needed_space
-
+        space_to_free = dirs[root_dir] - 40_000_000
         smallest_dir_to_remove = get_smallest_dir_to_remove(space_to_free)
+
         print(smallest_dir_to_remove)
 
         print('\nCompleted in {:.5f}s'.format(time.perf_counter() - start))
