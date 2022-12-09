@@ -22,6 +22,12 @@ def get_full_path(parent_dir, dir):
         return parent_dir + dir
     return parent_dir + '/' + dir
 
+def get_dir(full_path):
+    result = re.findall('.*\/(.*)', full_path)
+    if len(result) == 0 or result[0] == '':
+        return '/'
+    return result[0]
+
 def parse_line(line):
     global working_dir
 
@@ -49,17 +55,16 @@ def add_child_sizes_to_parents(dirs):
         while dir != root_dir:
             dir = get_parent_dir(dir)
             dirs[dir] += size
-
     return dirs
 
-def get_dir_sizes_under_max_size(max_size):
-    total_size = 0
+def get_smallest_dir_to_remove(needed_space):
+    sorted_dirs = sorted(dirs.items(), key=lambda item: item[1])
 
-    for _, size in dirs.items():
-        if size <= max_size:
-            total_size += size
-
-    return total_size
+    for dir, size in sorted_dirs:
+        print(f'needed: {needed_space}, dir: {dir}, size: {size}')
+        if size >= needed_space:
+            return get_dir(dir)
+    return '/'
 
 if __name__ == "__main__":
     with open(data_folder + file_name) as f:
@@ -70,9 +75,13 @@ if __name__ == "__main__":
 
         dirs = add_child_sizes_to_parents(dirs)
 
-        max_size = 100000
-        total = get_dir_sizes_under_max_size(max_size)
-        
-        print(total)
+        print(dirs[root_dir])
+
+        total_space = 70_000_000
+        needed_space = 30_000_000
+        space_to_free = dirs[root_dir] - total_space + needed_space
+
+        smallest_dir_to_remove = get_smallest_dir_to_remove(space_to_free)
+        print(smallest_dir_to_remove)
 
         print('\nCompleted in {:.5f}s'.format(time.perf_counter() - start))
