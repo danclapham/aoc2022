@@ -1,4 +1,4 @@
-import star1
+import star
 import os
 
 data_folder = os.path.dirname(__file__) + '/'
@@ -9,15 +9,15 @@ def get_last_two_elements(arr):
 
 def test_run_cmd():
     reg = [1, 2, 3]
-    star1.reg = reg
+    star.reg = reg
 
-    star1.run_cmd('noop', 9)
+    star.run_cmd('noop', 9)
     assert get_last_two_elements(reg) == (3, 3)
-    star1.run_cmd('noop', -4)
+    star.run_cmd('noop', -4)
     assert get_last_two_elements(reg) == (3, 3)
-    star1.run_cmd('addx', 9)
+    star.run_cmd('addx', 9)
     assert get_last_two_elements(reg) == (3, 12)
-    star1.run_cmd('addx', -4)
+    star.run_cmd('addx', -4)
     assert get_last_two_elements(reg) == (12, 8)
 
 if __name__ == "__main__":
