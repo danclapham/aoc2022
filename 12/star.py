@@ -81,7 +81,7 @@ if __name__ == "__main__":
             paths[start_index] = 0
 
             path_length = calc_fewest_steps(width, heights, paths, min_path_length)
-            if path_length != -1 and path_length < min_path_length:
+            if path_length != -1:
                 min_path_length = path_length
 
         print(min_path_length)
