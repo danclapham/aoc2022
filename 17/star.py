@@ -1,4 +1,4 @@
-import time, os
+import time, os, more_itertools, collections
 
 class Point:
     def __init__(self, x, y):
@@ -49,31 +49,44 @@ def apply_force(tower_coords, rock_coords, force_dir='V'):
 
     return rock_coords if is_rock_colliding(tower_coords, moved_rock_coords) else moved_rock_coords
 
+def find_repeats(seq):
+    min_size = 5
+    length = len(seq)
+    repeats = []
+
+    for runlen in range(min_size, length // 2):
+        i = 0
+        while i < length - runlen * 2:
+            s1 = seq[i : i+runlen]
+            s2 = seq[i+runlen : i+runlen*2]
+            if s1 == s2:
+                repeats.append((i, runlen, s1))
+                i += runlen
+            else:
+                i += 1
+    
+    return repeats
+
 if __name__ == "__main__":
     start = time.perf_counter()
     file_name = os.path.dirname(__file__) + '/17_1.txt'
 
     with open(file_name) as f:
         wind_dirs = f.read().replace('\n', '')
-        width = 7
+        width, height = 7, 0
         wind_index, rock_index = -1, 0
         tower_coords = {}
 
-        floor_height = 0
-        height = 0
         column_heights = [0 for _ in range(width)]
         repeated_column_heights = [[0 for _ in range(width)]]
-        repeats = []
-
-        num_rocks = 10    
+        winds_when_rocks_set, repeats = [], []
+  
         num_rocks = 2022
-        # num_rocks = 1_000_000
         # num_rocks = 1_000_000_000_000
 
-        for i in range(num_rocks):
-            # if i % 1_000_000 == 0:
-            #     print(f'i: {i}\nTime: {(time.perf_counter() - start):.5f}')
-
+        # for i in range(num_rocks):
+        i = 0
+        while True:
             rock_coords = create_rock(2, height + 4, rock_index)
             rock_index = (rock_index + 1) % 5
 
@@ -84,7 +97,7 @@ if __name__ == "__main__":
                 blown_rock_coords = apply_force(tower_coords, rock_coords, wind_dir)
                 rock_coords = apply_force(tower_coords, blown_rock_coords)
 
-                if rock_coords == blown_rock_coords: # if rock hasn't fallen, stop loop
+                if rock_coords == blown_rock_coords:
                     break
 
             for coord in rock_coords:
@@ -96,24 +109,25 @@ if __name__ == "__main__":
                 if coord.y > column_heights[coord.x]:
                     column_heights[coord.x] = coord.y
 
-            print(f'i: {i+1}\nnew_heights: {column_heights}')
+            # print(f'i: {i+1}\nnew_heights: {column_heights}')
 
-            if i > 100:
+            if rock_index == 0 and len(repeats) == 0:
+                repeated_column_heights.append(column_heights.copy())
+                winds_when_rocks_set.append(wind_index)
+
+                repeats = find_repeats(winds_when_rocks_set)
+
+                if len(repeats) != 0:
+                    cycle_length = repeats[0][1] * 5
+                    rocks_to_move_forward = (num_rocks - i - 1) % cycle_length
+                    print(f'\nFound repeats!\n  i: {i}\n  Cycle length: {cycle_length}\n  Cycle: {repeats[0][2]}\n  Rocks to move forward: {rocks_to_move_forward}')
+                    num_rocks = i + rocks_to_move_forward
+
+            if i == num_rocks:
+                print(f'\nEnd loop\n  i: {i}\n  Heights: {column_heights}')
                 break
 
-            # print(wind_index)
-
-            if wind_index == 0 and i != 0:
-                repeated_column_heights.append(column_heights.copy())
-                repeats.append(i)
-                print("Wind index 0!")
-                print(f'  heights: {column_heights}')
-
-        for i in range(1, len(repeated_column_heights)):
-            print(f'\n{repeated_column_heights[i]}')
-            for c in range(width):
-                print(repeated_column_heights[i][c] - repeated_column_heights[i-1][c] , end=' ')
-            print(f'\nRock number: {repeats[i]+1}')
+            i += 1
 
         print(f'\nHighest cols: {column_heights}')
         print(f'\nHighest point: {height}')
